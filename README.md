@@ -9,46 +9,29 @@ Service for managing "owned" bookings as well as request booking to be made.
 pip install -r requirements.txt
 uvicorn main:app --reload
 </p>
+<p>
+or via docker (add linux platform param on Mac Mx chip):
+docker build -t tag .
+</p>
 
 <p>
 Navigate to /docs for useful testing interface</p>
 
 <h2>Deploy process</h2>
-<p>TBA</p>
-<!-- <p>prerequisties: docker image (see above) and aws account / credentials configured</p>
+<p>prerequisties: docker image for linux (see above) and gcloud auth / credentials configured</p>
 <ul>
-<li>confirm container service ready: <br>
-aws lightsail get-container-services  \
-    --region eu-west-3                \
-    --service-name lastminutetableresy-web \
-    --query "containerServices[].state"</li>
-<li>push image:<br>
-aws lightsail push-container-image    \
-    --region eu-west-3                \
-    --service-name lastminutetableresy-web \
-    --label latest                    \
-    --image ktor-docker-image:latest</li>
-<li>(optional) get new image(?) name<br>
-aws lightsail get-container-images    \
-    --region eu-west-3                \
-    --service-name lastminutetableresy-web</li>
-<li>Update deploy.json file with image name</li>
+<li>push artifact (image) <br>
+docker push europe-west1-docker.pkg.dev/${PROJECT_ID}/lastminuteresy/table-service:tag</li>
+<li>(optional) credentials for cluster<br>
+gcloud container clusters get-credentials hello-cluster --region europe-west1</li>
 <li><strong>create deployment for new image</strong><br>
-aws lightsail create-container-service-deployment \
-    --region eu-west-3                            \
-    --cli-input-json "deploy.json_full_file_path"</li>
-<li>get deployment state (takes up to 3 min):<br>
-aws lightsail get-container-services      \
-    --region eu-west-3                    \
-    --query "containerServices[].nextDeployment.state"
-<br>alternatively<br>
-aws lightsail get-container-services      \
-    --region eu-west-3                    \
-    --query "containerServices[].currentDeployment.state"</li>
-<li>get deployed container url<br>
-aws lightsail get-container-services        \
-    --region eu-west-3                      \
-    --query "containerServices[].url"</li>
+kubectl create deployment table-service --image=europe-west1-docker.pkg.dev/${PROJECT_ID}/lastminuteresy/table-service:tag</li>
+<br>alternative rolling update only <br>
+kubectl set image deployment/table-service table-service=europe-west1-docker.pkg.dev/${PROJECT_ID}/hello-repo/hello-app:new-tag
+<li>set replicas (if needed)<br>
+kubectl scale deployment table-service --replicas=3
+<br>autoscaling (optional)<br>
+kubectl autoscale deployment table-service --cpu-percent=80 --min=1 --max=5
 <li>???</li>
 <li>Profit</li>
 
