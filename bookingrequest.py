@@ -1,23 +1,28 @@
 import datetime
-from typing import Optional
+import json
 
 from pydantic import BaseModel, Field
 
-from booking import Booking
 
-
-class BookingRequest(Booking):
-    # TODO change to datetime
+class BookingRequest:
+    restaurant: datetime.datetime
+    time: datetime.datetime
     created: datetime.datetime
 
-    def __init__(self, id, restaurant, time, created):
-        super().__init__(id, restaurant, time)
+    def __init__(self, restaurant, time, created):
+        self.restaurant = restaurant
+        self.time = time
         self.created = created
+
+    class BookingRequestEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, BookingRequest):
+                return {"restaurant": obj.restaurant, "time": str(obj.time), "created": str(obj.created)}
+            return super().default(obj)
 
 
 # TODO: Name?
 class BookingRequestRequest(BaseModel):
-    id: Optional[int] = None
     restaurant: str = Field(min_length=2, max_length=100)
     time: datetime.datetime
 

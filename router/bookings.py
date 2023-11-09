@@ -8,6 +8,16 @@ from booking import Booking
 from bookingrequest import BookingRequest, BookingRequestRequest
 from database import SessionLocal
 import models
+from google.cloud import pubsub_v1
+import json
+
+project_id = "sapient-bucksaw-401016"
+topic_id = "booking-requests"
+
+publisher = pubsub_v1.PublisherClient()
+# The `topic_path` method creates a fully qualified identifier
+# in the form `projects/{project_id}/topics/{topic_id}`
+topic_path = publisher.topic_path(project_id, topic_id)
 
 router = APIRouter(
     prefix="/bookings"
@@ -47,12 +57,13 @@ def get_active_booking_requests():
     return BOOKING_REQUESTS
 
 
-@router.post("/request", status_code=201)
+@router.post("/request")
 def create_booking_request(booking_request: BookingRequestRequest):
     new_booking = BookingRequest(**booking_request.model_dump(), created = datetime.datetime.utcnow())
-    num_bookings = len(BOOKING_REQUESTS)
-    new_booking.id = 0 if num_bookings == 0 else num_bookings
-    BOOKING_REQUESTS[new_booking.id] = new_booking
+    new_booking_str = json.dumps(new_booking, cls=BookingRequest.BookingRequestEncoder)
+    new_booking_data = new_booking_str.encode("utf-8")
+    future = publisher.publish(topic_path, new_booking_data)
+    future.result()
 
 
 @router.delete("/request/{id}", status_code=204)

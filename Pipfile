@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 fastapi = "*"
 sqlalchemy= "*"
+google-cloud-pubsub="*"
 
 [dev-packages]
 
