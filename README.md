@@ -4,6 +4,15 @@
 Service for managing "owned" bookings as well as request booking to be made.
 </p>
 
+<h2>Run locally</h2>
+<p>
+pip install -r requirements.txt
+uvicorn main:app --reload
+</p>
+
+<p>
+Navigate to /docs for useful testing interface</p>
+
 <h2>Deploy process</h2>
 <p>TBA</p>
 <!-- <p>prerequisties: docker image (see above) and aws account / credentials configured</p>
