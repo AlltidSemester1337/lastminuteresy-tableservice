@@ -1,13 +1,13 @@
+import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class Booking:
     id: int
-    restaurant: str
-    # TODO change to datetime
-    time: str
+    restaurant: datetime.datetime
+    time: datetime.datetime
 
     def __init__(self, id, restaurant, time):
         self.id = id
@@ -17,5 +17,5 @@ class Booking:
 
 class BookingRequest(BaseModel):
     id: Optional[int] = None
-    restaurant: str = Field(min_length=2, max_length=100)
-    time: str = Field(min_length=8, max_length=20)
+    restaurant: datetime.datetime
+    time: datetime.datetime
