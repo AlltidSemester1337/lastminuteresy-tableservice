@@ -6,7 +6,8 @@ import models
 from integration import IntegrationRequest, Integration
 
 router = APIRouter(
-    prefix="/integrations"
+    prefix="/integrations",
+    tags=["integrations"]
 )
 
 
@@ -32,7 +33,6 @@ def get_all_integrations(db: db_dep):
     return db.query(models.Integrations).all()
 
 
-# TODO FIX
 @router.delete("/{id}", status_code=204)
 def delete_integration(db: db_dep, id: int = Path(gt=-1)):
     db.query(models.Integrations).filter(models.Integrations.id == id).delete()

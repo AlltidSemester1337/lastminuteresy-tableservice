@@ -19,10 +19,9 @@ publisher = pubsub_v1.PublisherClient()
 topic_path = publisher.topic_path(project_id, topic_id)
 
 router = APIRouter(
-    prefix="/bookings"
+    prefix="/bookings",
+    tags=["bookings"]
 )
-
-BOOKING_REQUESTS = {}
 
 
 def get_db():
@@ -47,29 +46,25 @@ def get_all_free_bookings_by_name(db: db_dep, restaurant_name: str = Query(min_l
 
 
 @router.delete("/{id}", status_code=204)
-def delete_booking_request(id: int = Path(gt=-1), db=db_dep):
+def delete_booking(id: int = Path(gt=-1), db=db_dep):
     db.query(models.Bookings).filter(models.Bookings.id == id).delete()
-
-
-@router.get("/request")
-def get_active_booking_requests():
-    return BOOKING_REQUESTS
 
 
 @router.post("/request")
 def create_booking_request(booking_request: BookingRequestRequest):
-    new_booking = BookingRequest(**booking_request.model_dump(), created = datetime.datetime.utcnow())
+    new_booking = BookingRequest(**booking_request.model_dump(), created=datetime.datetime.utcnow())
     new_booking_str = json.dumps(new_booking, cls=BookingRequest.BookingRequestEncoder)
     new_booking_data = new_booking_str.encode("utf-8")
     future = publisher.publish(topic_path, new_booking_data)
     future.result()
 
 
-@router.delete("/request/{id}", status_code=204)
-def delete_booking_request(id: int = Path(gt=0)):
-    if BOOKING_REQUESTS.get(id) is None:
-        raise HTTPException(status_code=404)
-    BOOKING_REQUESTS.pop(id)
+# TODO: May be needed?
+# @router.delete("/request/{id}", status_code=204)
+# def delete_booking_request(id: int = Path(gt=0)):
+#    if BOOKING_REQUESTS.get(id) is None:
+#        raise HTTPException(status_code=404)
+#    BOOKING_REQUESTS.pop(id)
 
 
 # TODO: Probably not valid/needed
