@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 
 class BookingRequest:
-    restaurant: datetime.datetime
+    restaurant: str
     time: datetime.datetime
     created: datetime.datetime
 

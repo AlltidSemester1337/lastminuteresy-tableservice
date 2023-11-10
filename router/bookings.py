@@ -4,7 +4,6 @@ from typing import Annotated
 from fastapi import APIRouter, Path, Query, HTTPException, Depends
 from sqlalchemy.orm import Session
 
-from booking import Booking
 from bookingrequest import BookingRequest, BookingRequestRequest
 from database import SessionLocal
 import models
