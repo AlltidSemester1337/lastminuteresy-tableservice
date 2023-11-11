@@ -1,4 +1,5 @@
 import datetime
+import random
 from typing import Annotated
 
 from fastapi import APIRouter, Path, Query, HTTPException, Depends
@@ -33,6 +34,7 @@ def get_db():
 
 
 db_dep = Annotated[Session, Depends(get_db)]
+random = random.Random()
 
 
 @router.get("/free/all")
@@ -50,12 +52,19 @@ def delete_booking(id: int = Path(gt=-1), db=db_dep):
     db.query(models.Bookings).filter(models.Bookings.id == id).delete()
 
 
+def get_any_integration_for_restaurant(restaurant):
+    return random.randint(1, 2)
+
+#TODO In a future version we should support the caller to select the integration
 @router.post("/request")
 def create_booking_request(booking_request: BookingRequestRequest):
-    new_booking = BookingRequest(**booking_request.model_dump(), created=datetime.datetime.utcnow())
+    integration_id = get_any_integration_for_restaurant(booking_request.restaurant)
+    new_booking = BookingRequest(integration_id=integration_id, **booking_request.model_dump(), created=datetime.datetime.utcnow())
     new_booking_str = json.dumps(new_booking, cls=BookingRequest.BookingRequestEncoder)
+    print("JSON DATA: " + new_booking_str)
     new_booking_data = new_booking_str.encode("utf-8")
     future = publisher.publish(topic_path, new_booking_data)
+    #TODO handle cancelled? See subscriber
     future.result()
 
 

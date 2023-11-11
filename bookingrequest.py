@@ -5,11 +5,13 @@ from pydantic import BaseModel, Field
 
 
 class BookingRequest:
+    integration_id: int
     restaurant: str
     time: datetime.datetime
     created: datetime.datetime
 
-    def __init__(self, restaurant, time, created):
+    def __init__(self, integration_id, restaurant, time, created):
+        self.integration_id = integration_id
         self.restaurant = restaurant
         self.time = time
         self.created = created
@@ -17,7 +19,7 @@ class BookingRequest:
     class BookingRequestEncoder(json.JSONEncoder):
         def default(self, obj):
             if isinstance(obj, BookingRequest):
-                return {"restaurant": obj.restaurant, "time": str(obj.time), "created": str(obj.created)}
+                return {"integration_id": obj.integration_id, "restaurant": obj.restaurant, "time": str(obj.time), "created": str(obj.created)}
             return super().default(obj)
 
 
