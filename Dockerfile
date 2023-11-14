@@ -10,4 +10,4 @@ COPY ./ /app
 
 WORKDIR /app
 
-CMD python3 -m uvicorn app.main:app --host 0.0.0.0 --port 80
+CMD python3 -m uvicorn main:app --host 0.0.0.0 --port 80
