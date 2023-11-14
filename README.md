@@ -30,7 +30,7 @@ gcloud container clusters get-credentials hello-cluster --region europe-west1</l
 <li><strong>create deployment for new image</strong><br>
 kubectl create deployment table-service --image=europe-west1-docker.pkg.dev/${PROJECT_ID}/lastminuteresy/table-service:tag</li>
 <br>alternative rolling update only <br>
-kubectl set image deployment/table-service table-service=europe-west1-docker.pkg.dev/${PROJECT_ID}/hello-repo/hello-app:new-tag
+kubectl set image deployment/table-service table-service=europe-west1-docker.pkg.dev/${PROJECT_ID}/lastminuteresy/table-service:v1.2
 <li>set replicas (if needed)<br>
 kubectl scale deployment table-service --replicas=3
 <br>autoscaling (optional)<br>
