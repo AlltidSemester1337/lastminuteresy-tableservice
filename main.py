@@ -52,7 +52,7 @@ async def subscribe():
         print(f"Received {message}.")
         message_data_json = json.loads(message.data)
         message_data_json["time"] = datetime.datetime.fromisoformat(message_data_json["time"])
-        new_booking = models.Bookings(**message_data_json)
+        new_booking = models.Bookings(restaurant=message_data_json["restaurant"], time=message_data_json["time"])
         # Use the get_db context manager
         with get_db() as db:
             db.add(new_booking)
