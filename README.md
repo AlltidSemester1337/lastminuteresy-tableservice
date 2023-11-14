@@ -17,6 +17,9 @@ docker build -t tag .
 <p>
 Navigate to /docs for useful testing interface</p>
 
+<p>Incoming new bookings handling can be tested either
+via Gcloud pub/sub console or by running restaurant_integration_function locally</p>
+
 <h2>Deploy process</h2>
 <p>prerequisties: docker image for linux (see above) and gcloud auth / credentials configured</p>
 <ul>
@@ -36,4 +39,3 @@ kubectl autoscale deployment table-service --cpu-percent=80 --min=1 --max=5
 <li>Profit</li>
 
 </ul>
--->

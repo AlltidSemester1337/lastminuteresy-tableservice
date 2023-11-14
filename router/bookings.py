@@ -61,8 +61,9 @@ def create_booking_request(booking_request: BookingRequestRequest):
     integration_id = get_any_integration_for_restaurant(booking_request.restaurant)
     new_booking = BookingRequest(integration_id=integration_id, **booking_request.model_dump(), created=datetime.datetime.utcnow())
     new_booking_str = json.dumps(new_booking, cls=BookingRequest.BookingRequestEncoder)
-    new_booking_data = new_booking_str.encode("utf-8")
-    future = publisher.publish(topic_path, new_booking_data)
+    new_booking_request_data = new_booking_str.encode("utf-8")
+    print(f"Publish {new_booking_request_data}.")
+    future = publisher.publish(topic_path, new_booking_request_data)
     #TODO handle cancelled? See subscriber
     future.result()
 
