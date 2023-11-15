@@ -21,7 +21,8 @@ Navigate to /docs for useful testing interface</p>
 via Gcloud pub/sub console or by running restaurant_integration_function locally</p>
 
 <h2>Deploy process</h2>
-<p>prerequisties: docker image for linux (see above) and gcloud auth / credentials configured</p>
+<p>prerequisties: docker image for linux (see above) and gcloud auth / credentials configured
+as well as SA json file available (retreiveable or createable from GCP IAM)</p>
 <ul>
 <li>push artifact (image) <br>
 docker push europe-west1-docker.pkg.dev/${PROJECT_ID}/lastminuteresy/table-service:tag</li>
