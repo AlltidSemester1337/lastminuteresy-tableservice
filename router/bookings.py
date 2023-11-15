@@ -13,8 +13,10 @@ import json
 
 project_id = "sapient-bucksaw-401016"
 topic_id = "booking-requests"
+#TODO this secret needs to be added manually... should be improved
+SERVICE_ACCOUNT_PATH = './sapient-bucksaw-401016-4a1b2964cb2f.json'
 
-publisher = pubsub_v1.PublisherClient()
+publisher = pubsub_v1.PublisherClient.from_service_account_json(SERVICE_ACCOUNT_PATH)
 # The `topic_path` method creates a fully qualified identifier
 # in the form `projects/{project_id}/topics/{topic_id}`
 topic_path = publisher.topic_path(project_id, topic_id)
