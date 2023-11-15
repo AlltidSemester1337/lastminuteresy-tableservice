@@ -21,7 +21,11 @@ models.Base.metadata.create_all(bind=engine)
 
 project_id = "sapient-bucksaw-401016"
 subscription_id = "bookings-sub"
-subscriber = pubsub_v1.SubscriberClient()
+#TODO this secret needs to be added manually... should be improved
+SERVICE_ACCOUNT_PATH = './sapient-bucksaw-401016-4a1b2964cb2f.json'
+#For local run with default SA (granted it has pub/sub permissions) use below
+#subscriber = pubsub_v1.SubscriberClient()
+subscriber = pubsub_v1.SubscriberClient.from_service_account_json(SERVICE_ACCOUNT_PATH)
 subscription_path = subscriber.subscription_path(project_id, subscription_id)
 
 
