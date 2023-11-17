@@ -25,13 +25,13 @@ class BookingRequest:
 
 # TODO: Name?
 class BookingRequestRequest(BaseModel):
-    restaurant: str = Field(min_length=2, max_length=100)
+    integration_id: int = Field(gt=0, alias="integrationId")
     time: datetime.datetime
 
     class Config:
         json_schema_extra = {
             'example': {
-                'restaurant': 'McDonalds',
+                'integrationId': 1,
                 'time': '2023-11-09T12:30:00'
             }
         }

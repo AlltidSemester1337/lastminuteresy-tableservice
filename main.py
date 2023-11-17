@@ -21,16 +21,16 @@ models.Base.metadata.create_all(bind=engine)
 
 project_id = "sapient-bucksaw-401016"
 subscription_id = "bookings-sub"
-#TODO this secret needs to be added manually... should be improved
+# TODO this secret needs to be added manually... should be improved
 SERVICE_ACCOUNT_PATH = './sapient-bucksaw-401016-4a1b2964cb2f.json'
-#For local run with default SA (granted it has pub/sub permissions) use below
-#subscriber = pubsub_v1.SubscriberClient()
+# For local run with default SA (granted it has pub/sub permissions) use below
+# subscriber = pubsub_v1.SubscriberClient()
 subscriber = pubsub_v1.SubscriberClient.from_service_account_json(SERVICE_ACCOUNT_PATH)
 subscription_path = subscriber.subscription_path(project_id, subscription_id)
 
 
 @contextmanager
-def get_db() -> Session:
+def get_db_pub_sub():
     db = SessionLocal()
     try:
         yield db
@@ -51,14 +51,13 @@ def run_pubsub_subscriber():
 
 
 async def subscribe():
-
     def callback(message: pubsub_v1.subscriber.message.Message) -> None:
         print(f"Received {message}.")
         message_data_json = json.loads(message.data)
         message_data_json["time"] = datetime.datetime.fromisoformat(message_data_json["time"])
         new_booking = models.Bookings(restaurant=message_data_json["restaurant"], time=message_data_json["time"])
         # Use the get_db context manager
-        with get_db() as db:
+        with get_db_pub_sub() as db:
             db.add(new_booking)
             db.commit()
             message.ack()

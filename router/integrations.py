@@ -1,9 +1,12 @@
 from typing import Annotated
 from fastapi import APIRouter, Path, Query, HTTPException, Depends
 from sqlalchemy.orm import Session
+
+import main
 from database import SessionLocal
 import models
-from integration import IntegrationRequest, Integration
+from integration import IntegrationRequest
+from router import dependencies
 
 router = APIRouter(
     prefix="/integrations",
@@ -11,15 +14,7 @@ router = APIRouter(
 )
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-db_dep = Annotated[Session, Depends(get_db)]
+db_dep = Annotated[Session, Depends(dependencies.get_db)]
 
 
 @router.get("/by_restaurant")
@@ -40,7 +35,7 @@ def delete_integration(db: db_dep, id: int = Path(gt=-1)):
 
 
 @router.post("/", status_code=201)
-def create_booking_request(new_integration_request: IntegrationRequest, db: db_dep):
+def create_new_integration(new_integration_request: IntegrationRequest, db: db_dep):
     new_integration = models.Integrations(**new_integration_request.model_dump())
     db.add(new_integration)
     db.commit()

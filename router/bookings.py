@@ -1,22 +1,23 @@
 import datetime
-import random
 from typing import Annotated
-
 from fastapi import APIRouter, Path, Query, HTTPException, Depends
 from sqlalchemy.orm import Session
 
+import main
 from bookingrequest import BookingRequest, BookingRequestRequest
 from database import SessionLocal
 import models
 from google.cloud import pubsub_v1
 import json
 
+from router import integrations, dependencies
+
 project_id = "sapient-bucksaw-401016"
 topic_id = "booking-requests"
-#TODO this secret needs to be added manually... should be improved
+# TODO this secret needs to be added manually... should be improved
 SERVICE_ACCOUNT_PATH = './sapient-bucksaw-401016-4a1b2964cb2f.json'
-#For local run with default SA (granted it has pub/sub permissions) use below
-#publisher = pubsub_v1.PublisherClient()
+# For local run with default SA (granted it has pub/sub permissions) use below
+# publisher = pubsub_v1.PublisherClient()
 publisher = pubsub_v1.PublisherClient.from_service_account_json(SERVICE_ACCOUNT_PATH)
 # The `topic_path` method creates a fully qualified identifier
 # in the form `projects/{project_id}/topics/{topic_id}`
@@ -28,16 +29,7 @@ router = APIRouter(
 )
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-db_dep = Annotated[Session, Depends(get_db)]
-random = random.Random()
+db_dep = Annotated[Session, Depends(dependencies.get_db)]
 
 
 @router.get("/free/all")
@@ -55,19 +47,19 @@ def delete_booking(id: int = Path(gt=-1), db=db_dep):
     db.query(models.Bookings).filter(models.Bookings.id == id).delete()
 
 
-def get_any_integration_for_restaurant(restaurant):
-    return random.randint(1, 2)
-
-#TODO In a future version we should support the caller to select the integration
+# TODO In a future version we should support the caller to select the integration
 @router.post("/request")
-def create_booking_request(booking_request: BookingRequestRequest):
-    integration_id = get_any_integration_for_restaurant(booking_request.restaurant)
-    new_booking = BookingRequest(integration_id=integration_id, **booking_request.model_dump(), created=datetime.datetime.utcnow())
+def create_booking_request(booking_request: BookingRequestRequest, db: db_dep):
+    integration_id = booking_request.integration_id
+    restaurant = db.query(models.Integrations).filter(
+        models.Integrations.id == integration_id).first().restaurant
+    new_booking = BookingRequest(integration_id=integration_id, restaurant=restaurant, time=booking_request.time,
+                                 created=datetime.datetime.utcnow())
     new_booking_str = json.dumps(new_booking, cls=BookingRequest.BookingRequestEncoder)
     new_booking_request_data = new_booking_str.encode("utf-8")
     print(f"Publish {new_booking_request_data}.")
     future = publisher.publish(topic_path, new_booking_request_data)
-    #TODO handle cancelled? See subscriber
+    # TODO handle cancelled? See subscriber
     future.result()
 
 
