@@ -28,7 +28,6 @@ router = APIRouter(
     tags=["bookings"]
 )
 
-
 db_dep = Annotated[Session, Depends(dependencies.get_db)]
 
 
@@ -53,7 +52,9 @@ def create_booking_request(booking_request: BookingRequestRequest, db: db_dep):
     integration_id = booking_request.integration_id
     restaurant = db.query(models.Integrations).filter(
         models.Integrations.id == integration_id).first().restaurant
-    new_booking = BookingRequest(integration_id=integration_id, restaurant=restaurant, time=booking_request.time,
+    new_booking = BookingRequest(integration_id=integration_id, restaurant=restaurant,
+                                 num_persons=booking_request.num_persons, time=booking_request.time,
+                                 extra_parameters=booking_request.extra_parameters,
                                  created=datetime.datetime.utcnow())
     new_booking_str = json.dumps(new_booking, cls=BookingRequest.BookingRequestEncoder)
     new_booking_request_data = new_booking_str.encode("utf-8")
